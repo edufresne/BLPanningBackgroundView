@@ -2,7 +2,7 @@
 A reusable view that can be added as a subview to pan through a set of stock images. This can be used for a slow panning effect for sign in/intro screens or the speed can be increased for a carousel like component. 
 
 - Runs on an iOS device
-- Both Swift and Objective C versions
+- Both Swift (.swift) and Objective C (.h header and .m implementation) versions
 
 ## Usage
 - Clone the repository and add either the swift or objective c version to your project
