@@ -44,7 +44,7 @@ typedef enum : NSUInteger{
 /*
  Optional delegate to use. See delgate methods below for more info. Defaults to nil.
  */
-@property (assign, nonatomic) id<IEPanningBackgroundViewDelegate> delegate;
+@property (weak, nonatomic) id<IEPanningBackgroundViewDelegate> delegate;
 
 //Init methods
 -(id)initWithImages:(NSArray<UIImage*>*)images background:(CGRect)background;

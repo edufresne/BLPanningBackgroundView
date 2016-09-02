@@ -56,7 +56,7 @@ class IEPanningBackgroundView : UIImageView{
     var stockImages : Array = [UIImage]()
     
     //Optional delegate for use of the user
-    var delegate : IEPanningBackgroundViewDelegate?
+    weak var delegate : IEPanningBackgroundViewDelegate?
     
     //Private Variables
     
