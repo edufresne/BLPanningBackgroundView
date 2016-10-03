@@ -10,11 +10,11 @@ import UIKit
 
 //Delegate for use to see when images are switching and when they are done swifthing
 @objc protocol IEPanningBackgroundViewDelegate{
-    optional func panningBackgroundViewWillPanImage(view : IEPanningBackgroundView, image : UIImage)
-    optional func panningBackgroundViewDidPanImage(view : IEPanningBackgroundView, image : UIImage)
+    @objc optional func panningBackgroundViewWillPanImage(_ view : IEPanningBackgroundView, image : UIImage)
+    @objc optional func panningBackgroundViewDidPanImage(_ view : IEPanningBackgroundView, image : UIImage)
 }
 enum IEPanningBackgroundStyle : Int{
-    case Light, Dark
+    case light, dark
 }
 
 //Subclass of UIImage View
@@ -24,7 +24,7 @@ class IEPanningBackgroundView : UIImageView{
     var overlayAlpha : Double = 0{
         didSet{
             if self.initialized{
-                if self.style == IEPanningBackgroundStyle.Dark{
+                if self.style == IEPanningBackgroundStyle.dark{
                     self.overlayView.backgroundColor = UIColor(white: 0, alpha: CGFloat(self.overlayAlpha))
                 }
                 else{
@@ -43,7 +43,7 @@ class IEPanningBackgroundView : UIImageView{
     var style : IEPanningBackgroundStyle{
         didSet{
             if self.initialized{
-                if self.style == IEPanningBackgroundStyle.Dark{
+                if self.style == IEPanningBackgroundStyle.dark{
                     self.overlayView.backgroundColor = UIColor(white: 0, alpha: CGFloat(overlayAlpha))
                 }
                 else{
@@ -64,26 +64,26 @@ class IEPanningBackgroundView : UIImageView{
     private var initialBackgroundSize : CGRect = CGRect()
     private var transitionView : UIView = UIView()
     private var overlayView : UIView = UIView()
-    private var timer : NSTimer?
+    private var timer : Timer?
     private var initialized : Bool = false
     
     //Creates this object using an array of UIImage and the background of the superview
     init(images: [UIImage], background: CGRect){
         imageIndex = Int(arc4random())%images.count
         initialBackgroundSize = background
-        style = IEPanningBackgroundStyle.Dark
+        style = IEPanningBackgroundStyle.dark
         overlayAlpha = 0
         super.init(image: images[imageIndex])
         
         let resizeFactor = frame.size.height/background.size.height
-        frame = CGRectMake(background.origin.x, background.origin.y, frame.size.width/resizeFactor, frame.size.height/resizeFactor)
+        frame = CGRect(x: background.origin.x, y: background.origin.y, width: frame.size.width/resizeFactor, height: frame.size.height/resizeFactor)
         
         transitionView = UIView.init(frame: background)
-        transitionView.backgroundColor = UIColor.clearColor()
+        transitionView.backgroundColor = UIColor.clear
         addSubview(transitionView)
         
         overlayView = UIView.init(frame: frame)
-        overlayView.backgroundColor = UIColor.clearColor()
+        overlayView.backgroundColor = UIColor.clear
         addSubview(overlayView)
         initialized = true
     }
@@ -94,19 +94,19 @@ class IEPanningBackgroundView : UIImageView{
         }
         imageIndex = Int(arc4random())%stockImages.count
         initialBackgroundSize = background
-        style = IEPanningBackgroundStyle.Dark
+        style = IEPanningBackgroundStyle.dark
         overlayAlpha = 0
         super.init(image: stockImages[imageIndex])
         
         let resizeFactor = frame.size.height/background.size.height
-        frame = CGRectMake(background.origin.x, background.origin.y, frame.size.width/resizeFactor, frame.size.height/resizeFactor)
+        frame = CGRect(x: background.origin.x, y: background.origin.y, width: frame.size.width/resizeFactor, height: frame.size.height/resizeFactor)
         
         transitionView = UIView.init(frame: background)
-        transitionView.backgroundColor = UIColor.clearColor()
+        transitionView.backgroundColor = UIColor.clear
         addSubview(transitionView)
         
         overlayView = UIView.init(frame: frame)
-        overlayView.backgroundColor = UIColor.clearColor()
+        overlayView.backgroundColor = UIColor.clear
         addSubview(overlayView)
         initialized = true
     }
@@ -121,11 +121,11 @@ class IEPanningBackgroundView : UIImageView{
         
         UIView.beginAnimations("panningAnimation", context: nil)
         UIView.setAnimationDuration(panningTime)
-        frame = CGRectMake(-frame.width+initialBackgroundSize.width, frame.origin.y, frame.size.width, frame.size.height)
+        frame = CGRect(x: -frame.width+initialBackgroundSize.width, y: frame.origin.y, width: frame.size.width, height: frame.size.height)
         UIView.commitAnimations()
         
         let select = #selector(IEPanningBackgroundView.reset)
-        timer = NSTimer.scheduledTimerWithTimeInterval(panningTime, target: self, selector: select, userInfo: nil, repeats: false)
+        timer = Timer.scheduledTimer(timeInterval: panningTime, target: self, selector: select, userInfo: nil, repeats: false)
     }
     //Stops panning once the current image is done panning
     func stopPanning(){
@@ -141,29 +141,29 @@ class IEPanningBackgroundView : UIImageView{
     
     //Private Methods
     
-    @objc private func reset(){
+    @objc fileprivate func reset(){
         delegate?.panningBackgroundViewDidPanImage!(self, image: self.image!)
         
         UIView.beginAnimations("transition-in", context: nil)
         UIView.setAnimationDuration(self.transitionTime/2)
-        if self.style == IEPanningBackgroundStyle.Dark{
-            transitionView.backgroundColor = UIColor.blackColor()
+        if self.style == IEPanningBackgroundStyle.dark{
+            transitionView.backgroundColor = UIColor.black
         }
         else{
-            transitionView.backgroundColor = UIColor.whiteColor()
+            transitionView.backgroundColor = UIColor.white
         }
         UIView.commitAnimations()
         
         UIView.beginAnimations("transition-out", context: nil)
         UIView.setAnimationDuration(transitionTime/2)
         UIView.setAnimationDelay(transitionTime/2)
-        transitionView.backgroundColor = UIColor.clearColor()
+        transitionView.backgroundColor = UIColor.clear
         UIView.commitAnimations()
         
         let select = #selector(IEPanningBackgroundView.changeImages)
-        timer = NSTimer.scheduledTimerWithTimeInterval(transitionTime/2, target: self, selector: select, userInfo: nil, repeats: false)
+        timer = Timer.scheduledTimer(timeInterval: transitionTime/2, target: self, selector: select, userInfo: nil, repeats: false)
     }
-    @objc private func changeImages(){
+    @objc fileprivate func changeImages(){
         imageIndex += 1
         if (imageIndex >= stockImages.count){
             imageIndex = 0
@@ -171,17 +171,17 @@ class IEPanningBackgroundView : UIImageView{
         
         image = self.stockImages[imageIndex]
         let resizeFactor = image!.size.height/initialBackgroundSize.size.height
-        frame = CGRectMake(initialBackgroundSize.origin.x, initialBackgroundSize.origin.y, image!.size.width/resizeFactor, image!.size.height/resizeFactor)
+        frame = CGRect(x: initialBackgroundSize.origin.x, y: initialBackgroundSize.origin.y, width: image!.size.width/resizeFactor, height: image!.size.height/resizeFactor)
         overlayView.frame = frame
         
         delegate?.panningBackgroundViewWillPanImage?(self, image: self.image!)
         
         UIView.beginAnimations("panningAnimation", context: nil)
         UIView.setAnimationDuration(panningTime)
-        frame = CGRectMake(-frame.size.width+initialBackgroundSize.size.width, frame.origin.y, frame.size.width, frame.size.height)
+        frame = CGRect(x: -frame.size.width+initialBackgroundSize.size.width, y: frame.origin.y, width: frame.size.width, height: frame.size.height)
         UIView.commitAnimations()
         
         let select = #selector(IEPanningBackgroundView.reset)
-        timer = NSTimer.scheduledTimerWithTimeInterval(panningTime, target: self, selector: select, userInfo: nil, repeats: false)
+        timer = Timer.scheduledTimer(timeInterval: panningTime, target: self, selector: select, userInfo: nil, repeats: false)
     }
 }
